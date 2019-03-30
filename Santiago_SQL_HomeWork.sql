@@ -156,16 +156,64 @@ USING (category_id)
 WHERE name LIKE 'Family';
 
 -- 7e. Display the most frequently rented movies in descending order.
-
+SELECT title, COUNT(inventory_id) AS 'Number of rentals' FROM film
+JOIN inventory
+USING (film_id)
+JOIN rental
+USING (inventory_id)
+GROUP BY title
+ORDER BY COUNT(inventory_id) DESC;
 
 -- 7f. Write a query to display how much business, in dollars, each store brought in.
+SELECT store_id, SUM(amount) AS 'Total Rental Revenue' FROM payment
+JOIN rental
+USING (rental_id)
+JOIN inventory
+USING (inventory_id)
+JOIN store
+USING (store_id)
+GROUP BY store_id;
 
 -- 7g. Write a query to display for each store its store ID, city, and country.
+SELECT store_id, city, country FROM country
+JOIN city
+USING (country_id)
+JOIN address
+USING (city_id)
+JOIN store
+USING (address_id);
 
--- 7h. List the top five genres in gross revenue in descending order. (----Hint----: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+-- 7h. List the top five genres in gross revenue in descending order.
+-- Hint----: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+SELECT name, SUM(amount) AS 'Total Rental Revenue' FROM payment
+JOIN rental
+USING (rental_id)
+JOIN inventory
+USING (inventory_id)
+JOIN film_category
+USING (film_id)
+JOIN category
+USING (category_id)
+GROUP BY name
+ORDER BY SUM(amount) DESC ;
 
 -- 8a. In your new role as an executive, you would like to have an easy way of viewing the Top five genres by gross revenue. Use the solution from the problem above to create a view. If you haven't solved 7h, you can substitute another query to create a view.
+Create view Top_five_gross_rev_by_gen as
+SELECT  name, SUM(amount) AS 'Total Rental Revenue' FROM payment
+JOIN rental
+USING (rental_id)
+JOIN inventory
+USING (inventory_id)
+JOIN film_category
+USING (film_id)
+JOIN category
+USING (category_id)
+GROUP BY name
+ORDER BY SUM(amount) DESC 
+LIMIT 5;
 
 -- 8b. How would you display the view that you created in 8a?
+SELECT * FROM Top_five_gross_rev_by_gen;
 
 -- 8c. You find that you no longer need the view `top_five_genres`. Write a query to delete it.
+DROP VIEW Top_five_gross_rev_by_gen;
